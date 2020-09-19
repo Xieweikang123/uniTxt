@@ -13,5 +13,14 @@
 </script>
 
 <style>
+	.flexJustifyContentCenter{
+		display: flex;
+		justify-content: center;
+		align-items: center;
+	}
 	/*每个页面公共css */
+	.blueBtn{
+		    background-color: #4747fd;
+		    color: white;
+	}
 </style>
