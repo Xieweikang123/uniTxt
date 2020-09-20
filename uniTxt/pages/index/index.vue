@@ -1,15 +1,19 @@
 <template>
 	<view :style="pageIndex==1?'background-color: black;':''" class="content">
-		<div class="flexJustifyContentCenter" v-show="pageIndex==0">
-			<div class="verticalMiddle">
+		<view class="flexJustifyContentCenter" v-show="pageIndex==0">
+			<view class="verticalMiddle">
 				<input class="inputStyle" v-model="iptValue" type="text">
+				<view>
+					文字大小：{{showFontSize}}
+					<slider block-size="28" max="200" :value="showFontSize" @changing="sliderChange" step="1" />
+				</view>
 				<button @click="btnConfirm()" class="blueBtn">确定</button>
-			</div>
-		</div>
-		<div @click="pageIndex=0" class="flexJustifyContentCenter" style="height:100%;color:white;" v-show="pageIndex==1">
-			{{iptValue}}
-			<!-- <div :style="'font-size:'+showFontSize+'px;'">{{iptValue}}</div> -->
-		</div>
+			</view>
+		</view>
+		<view @click="btnCancel()" class="flexJustifyContentCenter" style="height:100%;color:white;" v-show="pageIndex==1">
+				<text :style="'font-size:'+showFontSize+'px'">{{iptValue}}</text>
+			<!-- <view :style="'font-size:'+showFontSize+'px;'">{{iptValue}}</view> -->
+		</view>
 	</view>
 </template>
 
@@ -26,8 +30,21 @@
 
 		},
 		methods: {
+			sliderChange(e){
+				this.showFontSize=e.detail.value;
+			},
+			
+			btnCancel(){
+				this.pageIndex=0
+				// #ifdef APP-PLUS
+				// plus.screen.
+				// #endif
+			},
 			btnConfirm() {
 				this.pageIndex = 1;
+				// #ifdef APP-PLUS
+				plus.screen.lockOrientation("landscape-primary");
+				// #endif
 				console.log("confirm")
 			}
 		}
