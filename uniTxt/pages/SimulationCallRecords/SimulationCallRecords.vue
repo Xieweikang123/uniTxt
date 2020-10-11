@@ -8,11 +8,11 @@
 		</view>
 		<view style="margin-top: 10px;" class="flexJustifyContentCenter">
 			开始时间：
-			<picker class="grayBorder" mode="time" :value="startTime"  @change="bindStartTimeChange">
+			<picker class="grayBorder" mode="time" :value="startTime" @change="bindStartTimeChange">
 				<view class="uni-input">{{startTime}}</view>
 			</picker>~
 			结束时间：
-			<picker class="grayBorder" mode="time" :value="endTime"   @change="bindEndTimeChange">
+			<picker class="grayBorder" mode="time" :value="endTime" @change="bindEndTimeChange">
 				<view class="uni-input">{{endTime}}</view>
 			</picker>
 		</view>
@@ -24,81 +24,133 @@
 	export default {
 		data() {
 			return {
-				startTime:"09:00",
-				endTime: "19:00",
+				startTime: '09:00',
+				endTime: '19:00',
 				createLogLoading: false,
 				phoneArrayValue: "13783503335 17838383339 15981919995 15936235558 18838978885 18860356888 18737100016 18203613579 15038383558 13598870870 18803712125 15903712199 15703711151 13903714123 15138695512 15290895512 18300683006 15890658906 15238383807 15238383878 15093199959 15136299919 15093288838 15093177797 15290877767 15713866676 15713866616 18237111171 15937100095 15038200010 15937100010 15093135522 15093219090 15093218383 15093128181 15093217676 15039077676 15093216363 15093226060 15225065959 15838115550 15890035557 18236760003 15838210003 15838210002 15937140001 13598040001 13598840001 15890198588 15290897788 15936257788 15238331100 15038330099 15138663966 15136259369 15238693369 14788868168 18737103168 18737130168 15737131168 15237108168 18703835168 15138970168 18336010123 18703670367 13721433555 15238653111 15238305000 18236436789 18203646789 15249686789 13526751234 17803995999 15290891999 13783591999 13733881999 15238066999 19838883888 19837111888 15937186888 13938251777 13838575777 18239961666 15238382666 13526610666 13703923456 15136454444 15138464444 15093336666 13526677777 13673997733 15803713368 15803712168 13703825151 13783685050 13633852525 13526861212 13592675050 13526623838 13673677171 13592677070 13838125522 13939015511 13676936299 15981861799 13838297099 13783632388 15981963677 13523012877 15803837866 15038163789 17837153789 15736713789 18738169567 17836902567 13598013678 13783509678 13783569567 13592616567 13603718907"
 			}
 		},
 		onLoad() {
+			// var date=new Date();
+			// console.log(date.toTimeString())
+
+			// this.startTime=date.toTimeString();
 			// this.createLogLoading=true;
 			// this.inertCallLog("15555555557",)
 			// this.queryCallLog()
 		},
 		methods: {
 			bindEndTimeChange(e) {
-				if(this.startTime>e.target.value){
+				if (this.startTime > e.target.value) {
 					uni.showToast({
 						title: '开始时间不能大于结束时间',
 						duration: 3000,
-						icon:"none"
+						icon: "none"
 					});
 					return;
 				}
 				this.endTime = e.target.value;
 			},
 			bindStartTimeChange(e) {
-				if(this.endTime<e.target.value){
+				if (this.endTime < e.target.value) {
 					uni.showToast({
 						title: '开始时间不能大于结束时间',
 						duration: 3000,
-						icon:"none"
+						icon: "none"
 					});
 					return;
 				}
 				this.startTime = e.target.value;
+				console.log(this.startTime)
+			},
+			getTimeDifferenceSecond(startTime, endTime) {
+				var diffHour = endTime.split(":")[0] - startTime.split(":")[0];
+				var diffMinute = endTime.split(":")[1] - startTime.split(":")[1];
+				console.log("diffHour", diffHour, diffMinute)
+				return diffHour * 60 * 60 + diffMinute * 60;
+			},
+			//通话时长 //通话时长0，100个电话出现几率是20%  60秒到180秒几率是60%  3分钟到8分钟为15%几率  10分钟到20分钟5%
+			randomCallTime(){
+				var randomSeed = Math.floor((Math.random() * 100) + 1);
+				if(randomSeed<=20){
+					return 0;
+				}else if(randomSeed<=80){
+					return Math.floor((Math.random() * 121) + 60);
+				}else if(randomSeed<=95){
+					return Math.floor((Math.random() * 301) + 180);
+				}else{
+					return Math.floor((Math.random() * 601) + 600);
+				}
+				// console.log(randomSeed)
 			},
 			//生成
+			//这个合理的解释就是  第二个电话最起码是第一个电话通话结束时间的顺延30秒以上
 			createCallLog() {
+				
 				uni.showLoading({
 					title: '生成中'
 				});
 				var phoneArray = this.phoneArrayValue.split(' ').filter(s => s && s.trim());
 
+				
+				//时间差 开始日期和结束日期之间相差的秒数
+				var diffSecond = this.getTimeDifferenceSecond(this.startTime, this.endTime);
+				console.log("difftime", diffSecond)
+				//每隔多久打一次电话
+				var callInterval=diffSecond/phoneArray.length;
+				console.log("callInterval",callInterval)
+				
 				var date = new Date();
-				date.setHours(9);
-				date.setMinutes(0);
-
+				date.setHours(this.startTime.split(":")[0]);
+				date.setMinutes(this.startTime.split(":")[1]);
+				//上次通话结束时间
+				var lastCallEndTime=date;
+				console.log("lastCallEndTime",lastCallEndTime)
 				for (var i = 0; i < phoneArray.length; i++) {
-					var dateHour = date.getHours();
-					var dateMinute = date.getMinutes();
-					var dateSecond = date.getSeconds();
+					var dateHour = lastCallEndTime.getHours();
+					var dateMinute = lastCallEndTime.getMinutes();
+					var dateSecond = lastCallEndTime.getSeconds();
+					
+					//第一次通话开始时间为开始时间
+					//然后随机一个通话时间
+					//记录上次通话结束时间=上次结束时间+随机通话时间
+					
+					//接下来通话开始时间：上次通话时间+顺延30秒
+					
 					//一个随机时间
 					var randomSecond = Math.floor((Math.random() * 60) + 1);
+					//通话时长
+					var callSpanTime=this.randomCallTime()
 					//秒数够60s,分钟进1
-					if (dateSecond + randomSecond >= 0) {
+					if (dateSecond + callSpanTime >= 60) {
+						//几分钟
+						var remaindMinute=Math.floor((dateSecond+callSpanTime)/60);
+						console.log("remainMinute",remaindMinute)
 						//分钟进1够60分钟，小时进1 ;分钟设置为0 
-						if (dateMinute + 1 >= 60) {
-							date.setHours(dateHour + 1);
-							date.setMinutes(0);
+						if (dateMinute + remaindMinute >= 60) {
+							//多几个小时
+							var remaindHour=Math.floor((dateMinute+remaindMinute)/60);
+							date.setHours(dateHour + remaindHour);
+							date.setMinutes((dateMinute + remaindMinute )%60);
 						} else { //分钟加1不够60
-							date.setMinutes(dateMinute + 1);
+							date.setMinutes(dateMinute + remaindMinute);
 						}
-						date.setSeconds(dateSecond + randomSecond - 60);
+						date.setSeconds((dateSecond + randomSecond)%60);
 					} else {
 						date.setMinutes(dateSecond + randomSecond);
 					}
-
-					this.insertCallLog(phoneArray[i], date, randomSecond, 2, 0);
+					console.log(phoneArray[i], callSpanTime, lastCallEndTime)
+					lastCallEndTime=date
+					
+					// this.insertCallLog(phoneArray[i], date, randomSecond, 2, 0);
 				}
 				uni.showToast({
 					title: '生成成功',
 					duration: 3000
 				});
 				// this.createLogLoading=false;
-				console.log("loading false", this.createLogLoading)
-				console.log("date")
-				console.log("phonearray", phoneArray)
+
+				// console.log("phonearray", phoneArray)
 			},
 			// #ifdef APP-PLUS
 			//插入一条通话记录 callDuration：通话时长(秒) callType: 1呼入 2呼出 3未接 ;  callNew 是否已查看    0已看1未看
