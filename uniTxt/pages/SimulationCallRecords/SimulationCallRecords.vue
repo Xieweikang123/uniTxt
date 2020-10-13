@@ -1,6 +1,6 @@
 <template>
 	<view>
-		<view style="padding: 21px 56px;">输入电话号码 空格分隔，如(11111111111 111111111112)</view>
+		<view @click="activeApp()" style="padding: 21px 56px;">输入电话号码 空格分隔，如(11111111111 111111111112)</view>
 		<view class="flexJustifyContentCenter">
 
 			<textarea maxlength="-1" @blur="clearUpTextarea()" class="grayBorder" v-model="phoneArrayValue"></textarea>
@@ -27,6 +27,7 @@
 	export default {
 		data() {
 			return {
+				activeCount:0,
 				startDate:'1997-10-13',
 				startTime: '10:00',
 				endTime: '21:00',
@@ -36,11 +37,24 @@
 		},
 		onLoad() {
 			var nowDate=new Date();
-			console.log("nowdate",nowDate)
 			this.startDate=nowDate.getFullYear()+"-"+(nowDate.getMonth()+1)+"-"+nowDate.getUTCDate();
-			console.log("startDate",this.startDate)
 		},
 		methods: {
+			activeApp(){
+				var that=this;
+				setTimeout(function(){
+					console.log("activeCount",that.activeCount);
+					that.activeCount=0;
+				},5000)
+				this.activeCount+=1;
+				console.log(this.activeCount);
+				if(this.activeCount>=6){
+					console.log("la")
+					uni.navigateTo({
+						url:"../ActiveManager/ActiveManager"
+					})
+				}
+			},
 			//textarea 整理	
 			clearUpTextarea(){
 				this.phoneArrayValue=this.phoneArrayValue.replace(/[\ +\r\n]/g,""); 

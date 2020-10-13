@@ -1,18 +1,36 @@
 {
 	"pages": [ //pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
 		{
+		    "path" : "pages/ActiveApp/ActiveApp",
+		    "style" : {
+				"navigationBarTitleText": "模拟手机通讯录-激活"
+			}
+		},
+		{
 		    "path" : "pages/SimulationCallRecords/SimulationCallRecords",
 		    "style" : {
 				"navigationBarTitleText": "模拟手机通讯录"
 			
 			}
+		},{
+		    "path" : "pages/ActiveApp/ActiveApp",
+		    "style" : {
+				"navigationBarTitleText": "模拟手机通讯录-激活"
+			}
 		},
+	{
+		"path": "pages/ActiveManager/ActiveManager",
+		"style": {
+			"navigationBarTitleText": "uni-app"
+		}
+	},
 		{
 			"path": "pages/phoneText/phoneText",
 			"style": {
 				"navigationBarTitleText": "uni-app"
 			}
 		}
+       
     ],
 	"globalStyle": {
 		"navigationStyle":"default",
