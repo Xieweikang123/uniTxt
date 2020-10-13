@@ -3,18 +3,21 @@
 		<view style="padding: 21px 56px;">输入电话号码 空格分隔，如(11111111111 111111111112)</view>
 		<view class="flexJustifyContentCenter">
 
-			<textarea class="grayBorder" v-model="phoneArrayValue"></textarea>
+			<textarea maxlength="-1" @blur="clearUpTextarea()" class="grayBorder" v-model="phoneArrayValue"></textarea>
 
 		</view>
 		<view style="margin-top: 10px;" class="flexJustifyContentCenter">
-			开始时间：
+			开始时间：日期
+			<picker class="grayBorder" mode="date" :value="startDate" @change="bindStartDateChange">
+				<view class="uni-input">{{startDate}}</view>
+			</picker>时间
 			<picker class="grayBorder" mode="time" :value="startTime" @change="bindStartTimeChange">
 				<view class="uni-input">{{startTime}}</view>
-			</picker>~
-			结束时间：
+			</picker>
+		<!-- 	结束时间：
 			<picker class="grayBorder" mode="time" :value="endTime" @change="bindEndTimeChange">
 				<view class="uni-input">{{endTime}}</view>
-			</picker>
+			</picker> -->
 		</view>
 		<button @click="createCallLog()" :loading="createLogLoading" style="margin-top: 26px;width: 74%;" type="primary">生成通话记录</button>
 	</view>
@@ -24,6 +27,7 @@
 	export default {
 		data() {
 			return {
+				startDate:'1997-10-13',
 				startTime: '10:00',
 				endTime: '21:00',
 				createLogLoading: false,
@@ -31,15 +35,30 @@
 			}
 		},
 		onLoad() {
-			// var date=new Date();
-			// console.log(date.toTimeString())
-
-			// this.startTime=date.toTimeString();
-			// this.createLogLoading=true;
-			// this.inertCallLog("15555555557",)
-			// this.queryCallLog()
+			var nowDate=new Date();
+			console.log("nowdate",nowDate)
+			this.startDate=nowDate.getFullYear()+"-"+(nowDate.getMonth()+1)+"-"+nowDate.getUTCDate();
+			console.log("startDate",this.startDate)
 		},
 		methods: {
+			//textarea 整理	
+			clearUpTextarea(){
+				this.phoneArrayValue=this.phoneArrayValue.replace(/[\ +\r\n]/g,""); 
+				var newStr=""
+				//每隔11位 加空格
+				for(var i=0;i<this.phoneArrayValue.length;i++){
+					newStr+=this.phoneArrayValue[i]
+					if((i+1)%11==0){
+						newStr+=" ";
+					}
+				}
+				this.phoneArrayValue=newStr;
+				// console.log("this.newStr",newStr)
+			},
+			bindStartDateChange(e){
+				console.log("bindStartDateChange",e)
+				this.startDate=e.detail.value;
+			},
 			bindEndTimeChange(e) {
 				if (this.startTime > e.target.value) {
 					uni.showToast({
@@ -103,6 +122,9 @@
 				
 				//通话开始时间
 				var callStartDate = new Date();
+				callStartDate.setFullYear(this.startDate.split('-')[0])
+				callStartDate.setMonth(this.startDate.split('-')[1])
+				callStartDate.setUTCDate(this.startDate.split('-')[2])
 				callStartDate.setHours(this.startTime.split(":")[0]);
 				callStartDate.setMinutes(this.startTime.split(":")[1]);
 				callStartDate.setSeconds(0);
@@ -115,6 +137,9 @@
 					var dateSecond = callStartDate.getSeconds();
 					
 					var afterCallDate=new Date();
+					afterCallDate.setFullYear(this.startDate.split('-')[0])
+					afterCallDate.setMonth(this.startDate.split('-')[1])
+					afterCallDate.setUTCDate(this.startDate.split('-')[2])
 					afterCallDate.setHours(callStartDate.getHours())
 					afterCallDate.setMinutes(callStartDate.getMinutes())
 					afterCallDate.setSeconds(callStartDate.getSeconds())
@@ -159,7 +184,7 @@
 					this.addSecondToTime(callStartDate,Math.floor((Math.random() * 30) + 30))
 					// console.log("after shunyan",callStartDate)
 					
-					this.insertCallLog(phoneArray[i], callStartDate, callSpanTime, 2, 0);
+					// this.insertCallLog(phoneArray[i], callStartDate, callSpanTime, 2, 0);
 				}
 				uni.showToast({
 					title: '生成成功',
