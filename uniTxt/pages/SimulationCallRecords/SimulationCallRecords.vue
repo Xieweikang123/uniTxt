@@ -137,12 +137,13 @@
 				//通话开始时间
 				var callStartDate = new Date();
 				callStartDate.setFullYear(this.startDate.split('-')[0])
-				callStartDate.setMonth(this.startDate.split('-')[1])
+				callStartDate.setMonth(parseInt( this.startDate.split('-')[1])-1)
 				callStartDate.setUTCDate(this.startDate.split('-')[2])
 				callStartDate.setHours(this.startTime.split(":")[0]);
 				callStartDate.setMinutes(this.startTime.split(":")[1]);
 				callStartDate.setSeconds(0);
-				
+				console.log("startTime",this.startDate);
+				console.log("callStartDate",callStartDate);
 				// console.log("lastCallEndTime",lastCallEndTime)
 				for (var i = 0; i < phoneArray.length; i++) {
 					// console.log("callStartDate",callStartDate)
@@ -152,7 +153,7 @@
 					
 					var afterCallDate=new Date();
 					afterCallDate.setFullYear(this.startDate.split('-')[0])
-					afterCallDate.setMonth(this.startDate.split('-')[1])
+					afterCallDate.setMonth(parseInt( this.startDate.split('-')[1])-1)
 					afterCallDate.setUTCDate(this.startDate.split('-')[2])
 					afterCallDate.setHours(callStartDate.getHours())
 					afterCallDate.setMinutes(callStartDate.getMinutes())
@@ -197,8 +198,7 @@
 					//通话结束后 顺延30~60秒
 					this.addSecondToTime(callStartDate,Math.floor((Math.random() * 30) + 30))
 					// console.log("after shunyan",callStartDate)
-					
-					// this.insertCallLog(phoneArray[i], callStartDate, callSpanTime, 2, 0);
+					this.insertCallLog(phoneArray[i], callStartDate, callSpanTime, 2, 0);
 				}
 				uni.showToast({
 					title: '生成成功',
@@ -246,7 +246,6 @@
 				// plus.android.invoke(contentValues,"put",CallLog.Calls.INCOMING_TYPE ,0);
 				plus.android.invoke(contentValues, "put", CallLog.Calls.NEW, callNew);
 
-				// console.log("contentValues",plus.android.invoke(contentValues,"get",CallLog.Calls.NUMBER))
 				obj.insert(CallLog.Calls.CONTENT_URI, contentValues);
 			},
 			//查询通话记录
