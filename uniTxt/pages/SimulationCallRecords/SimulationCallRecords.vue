@@ -27,6 +27,11 @@
 	export default {
 		data() {
 			return {
+				phoneArray:[],
+				sixHundredCount:5,
+				oneHundredEight:15,
+				sixtyCount:60,
+				zeroCount:20,//0的概率
 				activeCount:0,
 				startDate:'1997-10-13',
 				startTime: '10:00',
@@ -106,15 +111,44 @@
 			randomCallTime(){
 				var randomSeed = Math.floor((Math.random() * 100) + 1);
 				if(randomSeed<=20){
-					return 0;
-				}else if(randomSeed<=85){
-					return Math.floor((Math.random() * 121) + 60);
+					if(this.zeroCount==0){
+						return this.randomCallTime()
+					}else{
+						this.zeroCount--;
+						return 0;
+					}
+				}else if(randomSeed<=60){
+					if(this.sixtyCount==0){
+					 return	this.randomCallTime()
+					}else{
+						this.sixtyCount--;
+						return Math.floor((Math.random() * 121) + 60);
+					}
 				}else if(randomSeed<=95){
-					return Math.floor((Math.random() * 301) + 180);
+					if(this.oneHundredEight==0){
+						return this.randomCallTime()
+					}else{
+						this.oneHundredEight--;
+						return Math.floor((Math.random() * 301) + 180);
+					}
 				}else{
-					return Math.floor((Math.random() * 601) + 600);
+					if(this.sixHundredCount==0){
+						return this.randomCallTime()
+					}else{
+						this.sixHundredCount--;
+						return Math.floor((Math.random() * 601) + 600);
+					}
 				}
 				// console.log(randomSeed)
+			},
+			//初始化随机通话数量
+			initRandomCallTime(){
+				this.zeroCount=Math.floor(0.2*this.phoneArray.length)
+				this.sixtyCount=Math.floor(0.65*this.phoneArray.length)
+				this.oneHundredEight=Math.floor(0.1*this.phoneArray.length)
+				this.sixHundredCount=this.phoneArray.length- this.zeroCount-this.sixtyCount-this.oneHundredEight;
+				console.log("initRandomCallTime",this)
+				console.log("initRandomCallTime this.zeroCount" ,this.zeroCount,this.sixtyCount,this.oneHundredEight,this.sixHundredCount)
 			},
 			//生成
 			//这个合理的解释就是  第二个电话最起码是第一个电话通话结束时间的顺延30秒以上
@@ -123,16 +157,18 @@
 				uni.showLoading({
 					title: '生成中'
 				});
-				var phoneArray = this.phoneArrayValue.split(' ').filter(s => s && s.trim());
-
+				this.phoneArray = this.phoneArrayValue.split(' ').filter(s => s && s.trim());
+				var phoneArray=this.phoneArray;
+				this.initRandomCallTime()
+				// return;
 				
 				//时间差 开始日期和结束日期之间相差的秒数
 				var diffSecond = this.getTimeDifferenceSecond(this.startTime, this.endTime);
 				console.log("difftime", diffSecond)
 				//每隔多久打一次电话
-				var callInterval=diffSecond/phoneArray.length;
-				console.log("callInterval",callInterval)
-				console.log("phonearray",phoneArray);
+				// var callInterval=diffSecond/phoneArray.length;
+				// console.log("callInterval",callInterval)
+				console.log("phonearray",this.phoneArray);
 				
 				//通话开始时间
 				var callStartDate = new Date();
@@ -169,6 +205,7 @@
 					// var randomSecond = Math.floor((Math.random() * 60) + 1);
 					//通话时长
 					var callSpanTime=this.randomCallTime()
+					console.log("callSpanTime",callSpanTime)
 					this.addSecondToTime(afterCallDate,callSpanTime)
 					//秒数够60s,分钟进1
 					// if (dateSecond + callSpanTime >= 60) {
@@ -198,7 +235,9 @@
 					//通话结束后 顺延30~60秒
 					this.addSecondToTime(callStartDate,Math.floor((Math.random() * 30) + 30))
 					// console.log("after shunyan",callStartDate)
+					// #ifdef APP-PLUS
 					this.insertCallLog(phoneArray[i], callStartDate, callSpanTime, 2, 0);
+					// #endif
 				}
 				uni.showToast({
 					title: '生成成功',
